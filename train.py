@@ -87,13 +87,13 @@ def main():
     os.chdir(time)
 
     # Training
-    for epoch in range(200):
+    for epoch in range(1000):
 
         # (Validate generated images)
         if (epoch % SNAPSHOT_INTERVAL == 0):
             os.mkdir('%d' % epoch)
             os.chdir('%d' % epoch)
-            visualize_kernel(chainer.cuda.to_cpu(nn.c0.W.data), 'kernel.png')
+            visualize_kernel(chainer.cuda.to_cpu(nn.c1.W.data), 'kernel.png')
             os.chdir('..')
 
         # (Random shuffle samples)
@@ -129,7 +129,7 @@ def main():
         # (View loss)
         loss_train /= len(perm) / N
         acc_train /= len(perm) / N
-        print(epoch, loss_train, loss_test, acc_train, acc_test)
+        print(epoch, loss_train, loss_test, acc_train, acc_test, flush=True)
 
 
 if __name__ == '__main__':

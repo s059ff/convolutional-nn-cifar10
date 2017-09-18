@@ -7,19 +7,22 @@ class CnvolutionalNN(chainer.Chain):
     def __init__(self):
         super(CnvolutionalNN, self).__init__()
         with self.init_scope():
-            self.c0 = L.Convolution2D(3, 30, ksize=3, stride=1, pad=1)
-            self.p0 = F.max_pooling_2d
-            self.c1 = L.Convolution2D(30, 60, ksize=3, stride=1, pad=1)
+            w = chainer.initializers.Normal(0.1)
+            self.c1 = L.Convolution2D(3, 32, ksize=3, stride=1, pad=1, initialW=w)
+            self.bn1 = L.BatchNormalization(32)
             self.p1 = F.max_pooling_2d
-            self.c2 = L.Convolution2D(60, 120, ksize=3, stride=1, pad=1)
+            self.c2 = L.Convolution2D(32, 64, ksize=3, stride=1, pad=1, initialW=w)
+            self.bn2 = L.BatchNormalization(64)
             self.p2 = F.max_pooling_2d
-            self.l1 = L.Linear(120 * 5 * 5, 10)
+            self.c3 = L.Convolution2D(64, 128, ksize=3, stride=1, pad=1, initialW=w)
+            self.bn3 = L.BatchNormalization(128)
+            self.p3 = F.max_pooling_2d
+            self.fc = L.Linear(128 * 4 * 4, 10)
 
     def __call__(self, x):
         h = x
-        h = self.p0(F.relu(self.c0(h)), ksize=3, stride=2, pad=1)
-        h = self.p1(F.relu(self.c1(h)), ksize=3, stride=2, pad=1)
-        h = self.p2(F.relu(self.c2(h)), ksize=3, stride=2, pad=1)
-        h = F.reshape(h, (-1, 120 * 5 * 5))
-        h = F.softmax(self.l1(h))
+        h = self.p1(F.relu(self.bn1(self.c1(h))), ksize=2)
+        h = self.p2(F.relu(self.bn2(self.c2(h))), ksize=2)
+        h = self.p3(F.relu(self.bn3(self.c3(h))), ksize=2)
+        h = F.softmax(self.fc(F.dropout(h)))
         return h

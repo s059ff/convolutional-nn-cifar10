@@ -12,12 +12,14 @@ def visualize(X, fname, shape):
     plt.close()
 
 def visualize_kernel(W, fname):
-    plt.figure(num=None, figsize=(10, 3), dpi=30, facecolor='w', edgecolor='k')
-    for i in range(30):
-        plt.subplot(3, 10, i + 1)
+    cols = 10
+    rows = len(W) // cols + (1 if len(W) % cols != 0 else 0)
+    plt.figure(num=None, figsize=(cols, rows), dpi=30, facecolor='w', edgecolor='k')
+    for i in range(len(W)):
+        plt.subplot(rows, cols, i + 1)
         plt.tick_params(labelleft='off', top='off', bottom='off')
         plt.tick_params(labelbottom='off', left='off', right='off')
-        plt.imshow(W[i].reshape((3, 3, 3)).transpose(1, 2, 0))
+        plt.imshow(W[i].transpose(1, 2, 0))
     plt.savefig(fname)
     plt.close()
     
