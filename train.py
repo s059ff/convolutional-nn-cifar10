@@ -99,28 +99,37 @@ def main():
         # (Random shuffle samples)
         perm = np.random.permutation(len(train_x))
 
-        total_loss_train = 0.0
-        total_loss_test = 0.0
+        loss_train = 0.
+        loss_test = 0.
+        acc_train = 0.
+        acc_test = 0.
 
+        # Train
         for n in range(0, len(perm), N):
             x = chainer.cuda.to_gpu(train_x[perm[n:n + N]])
             t = chainer.cuda.to_gpu(train_y[perm[n:n + N]])
             y = nn(x)
             loss = F.softmax_cross_entropy(y, t)
+            acc = F.accuracy(y, t)
             nn.cleargrads()
             loss.backward()
             optimizer.update()
-            total_loss_train += loss.data
+            loss_train += loss.data
+            acc_train += acc.data
 
+        # Test
         x = chainer.cuda.to_gpu(test_x)
         t = chainer.cuda.to_gpu(test_y)
         y = nn(x)
         loss = F.softmax_cross_entropy(y, t)
-        total_loss_test += loss.data
+        acc = F.accuracy(y, t)
+        loss_test += loss.data
+        acc_test += acc.data
 
         # (View loss)
-        total_loss_train /= len(perm) / N
-        print(epoch, total_loss_train, total_loss_test)
+        loss_train /= len(perm) / N
+        acc_train /= len(perm) / N
+        print(epoch, loss_train, loss_test, acc_train, acc_test)
 
 
 if __name__ == '__main__':
